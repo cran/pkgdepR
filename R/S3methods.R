@@ -13,12 +13,16 @@ is.pkgdepR = function(x) {
 #' @title Visualizing package dependencies
 #' @description This function is a simple wrapper for plotting a network visualization using \link[visNetwork]{visNetwork}.
 #' @param x An object of class \code{pkgdepR}.
-#' @param width The width of the vis.js render.
-#' @param height The height of the vis.js render.
+#' @param width The width of the \code{vis.js} render.
+#' @param height The height of the \code{vis.js} render.
 #' @param main The title. To remove the title, pass \code{list(text = NULL)}.
 #' @param submain The subtitle. To remove the subtitle, pass \code{list(text = NULL)}.
 #' @param alpha A transparency value to use for colors. Must be between 0 and 1.
-#' @param ... Other arguments passed onto \link[visNetwork]{visNetwork} and  \link[viridisLite]{viridis}.
+#' @param footer A character or a named list. See \link[visNetwork]{visNetwork}.
+#' @param background  A background color. See \link[visNetwork]{visNetwork}.
+#' @param n (Optional) The number of colours to request from \link[viridisLite]{viridis}. Allows the user to set a more granular palette.
+#' @param m (Optional) The subset of colours of the custom palette (specified by \code{n}) to use in the plot.
+#' @param ... Other arguments passed onto \link[viridisLite]{viridis}.
 #' @examples
 #' library(pkgdepR)
 #' deps(pkg = "pkgdepR") %>% plot(option = "E", direction = -1)
@@ -34,7 +38,24 @@ plot.pkgdepR = function(x,
                         main = NULL,
                         submain = NULL, 
                         alpha = 0.8,
+                        footer = NULL,
+                        background = "rgba(0, 0, 0, 0)",
+                        n,
+                        m,
                         ...) {
+  
+  exported = NULL
+  shape = NULL
+  
+  if (missing(n)) {
+    n = length(unique(x$funs$package))
+  }
+  
+  if (missing(m)) {
+    m = 1:length(unique(x$funs$package))
+  } else {
+    m = pmin(m, n)
+  }
   
   if (is.null(main)) {
     main = list(text = "Package function network<br></br>", 
@@ -47,18 +68,19 @@ plot.pkgdepR = function(x,
   }
   
   alpha = max(min(alpha, 1), 0)
+
   
-  cols = grDevices::col2rgb(viridisLite::viridis(n = length(unique(x$funs$package)), ...))
+  cols = grDevices::col2rgb(viridisLite::viridis(n = n, ...)[m])
   cols = apply(cols, 2, FUN = function(x, alpha) {return(paste0("rgba(", paste0(x, collapse = ", "), ", ", alpha, ")"))}, alpha = alpha)
   cols = data.frame(package = unique(x$funs$package), color = cols)
   
   x$funs = x$funs %>% dplyr::left_join(cols, by = "package")
   
-  x$funs$shape = "dot"
-  x$funs$shape[!x$funs$exported] = "square"
+  x$funs = x$funs %>% dplyr::mutate(shape = "dot")
+  x$funs = x$funs %>% dplyr::mutate(shape = ifelse(!exported, "square", shape))
   
-  visNetwork::visNetwork(x[[1]], x[[2]], width = width, height = height, main = main, submain = submain, ...) %>%
-    visNetwork::visEdges(arrows = "from", color = list(color = "black", opacity = 0.6), arrowStrikethrough = FALSE) %>%
+  visNetwork::visNetwork(x[[1]], x[[2]], width = width, height = height, main = main, submain = submain, footer = footer, background = background) %>%
+    visNetwork::visEdges(arrows = "from", color = list(color = "#333333", opacity = 1, hover = "#111111", highlight = "black"), arrowStrikethrough = FALSE) %>%
     visNetwork::visNodes() %>%
     visNetwork::visOptions(highlightNearest = list(enabled = TRUE, hover = FALSE),
                            nodesIdSelection = list(main = "Select function",

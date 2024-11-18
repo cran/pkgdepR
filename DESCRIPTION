@@ -1,8 +1,8 @@
 Package: pkgdepR
 Type: Package
 Title: Statically Determine Function Dependencies Between Packages
-Version: 1.0.0
-Authors@R: c(person(given = "Ed", family = "Peyton", email = "edppeyton@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-1427-0306")))
+Version: 1.1.0
+Authors@R: c(person("Ed", "Peyton", email = "edppeyton@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-1427-0306")))
 Maintainer: Ed Peyton <edppeyton@gmail.com>
 Description: Statically determine and visualize the function dependencies
     within and across packages. This may be useful for managing function 
@@ -11,10 +11,10 @@ License: MIT + file LICENSE
 URL: https://pkgdepR.org/
 BugReports: https://github.com/edpeyton/pkgdepR/issues
 Encoding: UTF-8
-RoxygenNote: 7.1.1
+RoxygenNote: 7.3.2
 Imports: visNetwork, dplyr, magrittr, viridisLite, scales, utils
 NeedsCompilation: no
-Packaged: 2022-02-15 12:23:49 UTC; edppe
+Packaged: 2024-11-18 11:44:24 UTC; User
 Author: Ed Peyton [aut, cre] (<https://orcid.org/0000-0002-1427-0306>)
 Repository: CRAN
-Date/Publication: 2022-02-16 08:10:02 UTC
+Date/Publication: 2024-11-18 12:00:05 UTC
